@@ -66,6 +66,10 @@ function zsh-prompt-benchmark() {
         >&2 echo -E ""
         >&2 echo -E "  print -lP BEGIN $LP END"
         >&2 echo -E "************************************************************"
+        >&2 echo -E ""
+        >&2 echo -E "Press 'q' to continue..."
+        local _
+        IFS='' read -rsd q _
         add-zsh-hook -D precmd _zsh_prompt_benchmark_precmd
         unset -m "_BENCHMARK_PROMPT_*"
         unset -f _zsh_prompt_benchmark_precmd
