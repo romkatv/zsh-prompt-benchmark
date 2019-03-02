@@ -76,4 +76,5 @@ function zsh-prompt-benchmark() {
   }
 }
 
+zmodload zsh/datetime
 autoload -Uz add-zsh-hook
