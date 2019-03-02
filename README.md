@@ -85,11 +85,3 @@ For example, here's how you can print the same left prompt
 I wrote it while optimizing prompt generation in
 [Powerlevel9k](https://github.com/bhilburn/powerlevel9k) ZSH theme, which resulted in
 the much faster [Powerlevel10k](https://github.com/romkatv/powerlevel10k).
-
-| Theme                      | /      | ~/testrepo | ~/nerd-fonts | ~/linux |
-|----------------------------|-------:|-----------:|-------------:|--------:|
-| powerlevel9k/master        | 135 ms |     207 ms |       234 ms | 326 ms  |
-| powerlevel9k/next          |  47 ms |     101 ms |       122 ms | 213 ms  |
-| powerlevel10k w/ vcs_info  |  24 ms |      82 ms |       104 ms | 197 ms  |
-| powerlevel10k w/ gitstatus |  11 ms |      14 ms |        31 ms |  76 ms  |
-| naked zsh                  |   1 ms |       1 ms |         1 ms |   1 ms  |
