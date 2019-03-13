@@ -21,7 +21,7 @@ source ./zsh-prompt-benchmark.plugin.zsh
 Clone the repo.
 
 ```zsh
-git clone https://github.com/romkatv/zsh-prompt-benchmark.git ~/.oh-my-zsh/custom/plugins/zsh-prompt-benchmark
+git clone https://github.com/romkatv/zsh-prompt-benchmark.git "$ZSH_CUSTOM/plugins/zsh-prompt-benchmark"
 ```
 
 Enable `zsh-prompt-benchmark` plugin in your `.zshrc`.
