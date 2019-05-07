@@ -91,5 +91,3 @@ function zsh-prompt-benchmark() {
 
 zmodload zsh/datetime
 autoload -Uz add-zsh-hook
-
-typeset -g _ZSH_PROMPT_BENCHMARK_GREETING=hello
