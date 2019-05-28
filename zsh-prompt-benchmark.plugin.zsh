@@ -32,62 +32,64 @@
 # you can artificially boost it by buffering keyboard input buffer. Your effective key repeat
 # rate is multiplied by 1 + $2 / $1. With default settings this is 1 + 10 / 5 == 3.
 function zsh-prompt-benchmark() {
-  typeset -gHF3 _BENCHMARK_PROMPT_DURATION=${1:-5}
-  typeset -gHi  _BENCHMARK_PROMPT_WARMUP_DURATION=${2:-10}
-  typeset -gHi  _BENCHMARK_PROMPT_SAMPLE_IDX=0
-  typeset -gHF3 _BENCHMARK_PROMPT_START_TIME=0
-  >&2 echo "Enabling prompt benchmarking for ${_BENCHMARK_PROMPT_DURATION}s" \
-           "after buffering keyboard input for ${_BENCHMARK_PROMPT_WARMUP_DURATION}s."
+  typeset -gF3 _benchmark_prompt_duration=${1:-5}
+  typeset -gi  _benchmark_prompt_warmup_duration=${2:-10}
+  typeset -gi  _benchmark_prompt_sample_idx=0
+  typeset -gF3 _benchmark_prompt_start_time=0
+  >&2 echo "Enabling prompt benchmarking for ${_benchmark_prompt_duration}s" \
+           "after buffering keyboard input for ${_benchmark_prompt_warmup_duration}s."
   >&2 echo "Press and hold [ENTER] until you see benchmark results."
+  zmodload zsh/datetime
+  autoload -Uz add-zsh-hook
   add-zsh-hook precmd _zsh_prompt_benchmark_precmd
 
-  typeset -gHf _zsh_prompt_benchmark_precmd() {
+  function _zsh_prompt_benchmark_precmd() {
     local -F now=$EPOCHREALTIME
-    ((++_BENCHMARK_PROMPT_SAMPLE_IDX))
-    if ((now < _BENCHMARK_PROMPT_START_TIME + _BENCHMARK_PROMPT_DURATION)); then
-      return
-    fi
-    if (( _BENCHMARK_PROMPT_START_TIME )); then
-      local -i N=$((_BENCHMARK_PROMPT_SAMPLE_IDX - 1))
-      local -F3 T=$((now - _BENCHMARK_PROMPT_START_TIME))
-      local -F2 P=$((1000 * T / N))
-      local LP=$(eval LC_ALL=C printf '%q' \"$PROMPT\")
-      local RP=$(eval LC_ALL=C printf '%q' \"$RPROMPT\")
+    ((++_benchmark_prompt_sample_idx))
+    ((now >= _benchmark_prompt_start_time + _benchmark_prompt_duration)) || return
+    (( _benchmark_prompt_start_time )) && {
+      local -i n=$((_benchmark_prompt_sample_idx - 1))
+      local -F3 t=$((now - _benchmark_prompt_start_time))
+      local -F2 p=$((1000 * t / n))
+      [[ -o promptsubst ]] && {
+        local LP=$(eval LC_ALL=C printf '%q' \"${PROMPT-}\")
+        local RP=$(eval LC_ALL=C printf '%q' \"${RPROMPT-}\")
+      } || {
+        local LP=$(LC_ALL=C printf '%q' "${PROMPT-}")
+        local RP=$(LC_ALL=C printf '%q' "${RPROMPT-}")
+      }
       >&2 echo -E "************************************************************"
       >&2 echo -E "                Prompt Benchmark Results                    "
       >&2 echo -E "************************************************************"
-      >&2 echo -E "Warmup duration           ${_BENCHMARK_PROMPT_WARMUP_DURATION}s"
-      >&2 echo -E "Benchmarked prompts       $N"
-      >&2 echo -E "Total time                ${T}s"
-      >&2 echo -E "Time per prompt           ${P}ms"
+      >&2 echo -E "Warmup duration           ${_benchmark_prompt_warmup_duration}s"
+      >&2 echo -E "Benchmarked prompts       $n"
+      >&2 echo -E "Total time                ${t}s"
+      >&2 echo -E "Time per prompt           ${p}ms"
       >&2 echo -E "************************************************************"
       >&2 echo -E ""
-      >&2 echo -E "PROMPT=$LP"
+      >&2 echo -E "PROMPT=${(%):-%K{green\}}$LP${(%):-%k}"
       >&2 echo -E ""
-      >&2 echo -E "RPROMPT=$RP"
+      >&2 echo -E "RPROMPT=${(%):-%K{green\}}$RP${(%):-%k}"
       >&2 echo -E ""
       >&2 echo -E "Tip: To print one of the reported prompts, execute the"
-      >&2 echo -E "following command with \${P} replaced by the prompt string."
+      >&2 echo -E "following command with \${p} replaced by the prompt string."
       >&2 echo -E ""
-      >&2 echo -E "  print -lP BEGIN \${P} '' END"
+      >&2 echo -E "  print -lP BEGIN \${p} '' END"
       >&2 echo -E ""
       >&2 echo -E "For example, here's how you can print the same left prompt"
       >&2 echo -E "(PROMPT) that was benchmarked:"
       >&2 echo -E ""
-      >&2 echo -E "  print -lP BEGIN $LP END"
+      >&2 echo -E "  print -lP BEGIN ${(%):-%K{green\}}$LP${(%):-%k} END"
       >&2 echo -E "************************************************************"
       >&2 echo -E ""
       >&2 echo -E "Press 'q' to continue..."
-      unset -m "_BENCHMARK_PROMPT_*"
+      unset -m "_benchmark_prompt_*"
       unset -f _zsh_prompt_benchmark_precmd
       add-zsh-hook -D precmd _zsh_prompt_benchmark_precmd
-      local _ && IFS='' read -rsd q _
-    else
-      sleep $_BENCHMARK_PROMPT_WARMUP_DURATION
-      typeset -gHF _BENCHMARK_PROMPT_START_TIME=$EPOCHREALTIME
-    fi
+      local r && IFS='' read -rsd q r
+    } || {
+      sleep $_benchmark_prompt_warmup_duration
+      typeset -gF _benchmark_prompt_start_time=$EPOCHREALTIME
+    }
   }
 }
-
-zmodload zsh/datetime
-autoload -Uz add-zsh-hook
