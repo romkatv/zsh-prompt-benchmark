@@ -51,13 +51,14 @@ function zsh-prompt-benchmark() {
       local -i n=$((_benchmark_prompt_sample_idx - 1))
       local -F3 t=$((now - _benchmark_prompt_start_time))
       local -F2 p=$((1000 * t / n))
-      [[ -o promptsubst ]] && {
-        local LP=$(eval LC_ALL=C printf '%q' \"${PROMPT-}\")
-        local RP=$(eval LC_ALL=C printf '%q' \"${RPROMPT-}\")
+      [[ -o prompt_subst ]] && {
+        local lp=$(eval LC_ALL=C printf '%q' \"${PROMPT-}\")
+        local rp=$(eval LC_ALL=C printf '%q' \"${RPROMPT-}\")
       } || {
-        local LP=$(LC_ALL=C printf '%q' "${PROMPT-}")
-        local RP=$(LC_ALL=C printf '%q' "${RPROMPT-}")
+        local lp=$(LC_ALL=C printf '%q' "${PROMPT-}")
+        local rp=$(LC_ALL=C printf '%q' "${RPROMPT-}")
       }
+      [[ -o prompt_percent ]] && local o=P || local o=''
       >&2 echo -E "************************************************************"
       >&2 echo -E "                Prompt Benchmark Results                    "
       >&2 echo -E "************************************************************"
@@ -67,19 +68,19 @@ function zsh-prompt-benchmark() {
       >&2 echo -E "Time per prompt           ${p}ms"
       >&2 echo -E "************************************************************"
       >&2 echo -E ""
-      >&2 echo -E "PROMPT=${(%):-%K{green\}}$LP${(%):-%k}"
+      >&2 echo -E "PROMPT=${(%):-%K{green\}}$lp${(%):-%k}"
       >&2 echo -E ""
-      >&2 echo -E "RPROMPT=${(%):-%K{green\}}$RP${(%):-%k}"
+      >&2 echo -E "RPROMPT=${(%):-%K{green\}}$rp${(%):-%k}"
       >&2 echo -E ""
       >&2 echo -E "Tip: To print one of the reported prompts, execute the"
       >&2 echo -E "following command with \${p} replaced by the prompt string."
       >&2 echo -E ""
-      >&2 echo -E "  print -lP BEGIN \${p} '' END"
+      >&2 echo -E "  print -l${o} BEGIN \${p} '' END"
       >&2 echo -E ""
       >&2 echo -E "For example, here's how you can print the same left prompt"
       >&2 echo -E "(PROMPT) that was benchmarked:"
       >&2 echo -E ""
-      >&2 echo -E "  print -lP BEGIN ${(%):-%K{green\}}$LP${(%):-%k} END"
+      >&2 echo -E "  print -l${o} BEGIN ${(%):-%K{green\}}$lp${(%):-%k} END"
       >&2 echo -E "************************************************************"
       >&2 echo -E ""
       >&2 echo -E "Press 'q' to continue..."
