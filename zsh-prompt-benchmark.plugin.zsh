@@ -60,7 +60,8 @@ function zsh-prompt-benchmark() {
       unset -m "_benchmark_prompt_*"
       unset -f _zsh_prompt_benchmark_precmd
       add-zsh-hook -D precmd _zsh_prompt_benchmark_precmd
-      local r && IFS='' read -rsd q r
+      local r
+      IFS='' read -rsd q r || true
     } || {
       sleep $_benchmark_prompt_warmup_duration
       typeset -gF _benchmark_prompt_start_time=EPOCHREALTIME
